@@ -1,0 +1,469 @@
+---
+title: "Final Project"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+library(lubridate)
+library(scales)
+library(stringr)
+```
+
+```{r}
+num_employees <- read.csv("num_employees_y.csv") %>%
+  mutate(Date = ymd(Date),
+         Number_Employees = Number_Employees / 1e3)
+total_salaries <- read.csv("total_salaries_y.csv") %>%
+  mutate(Date = ymd(Date),
+         Total_Salary = Total_Salary / 1e6)
+average_salaries <- read.csv("average_salaries_y.csv") %>%
+  mutate(Date = ymd(Date),
+         Average_Salary = Average_Salary / 1e3)
+food_safety_metrics <- read.csv("food_safety_metrics.csv")
+IRS_metric <- read.csv("IRS_metric_coverage.csv")
+```
+
+```{r}
+food_safety_employees_plot <- ggplot(num_employees %>% 
+                                       filter(Occupation == "Food Inspection"), 
+                                     aes(Date, Number_Employees)) +
+  geom_line(size = 2) + 
+  xlab("Year") +
+  ylab("Number of Employees (in thousands)") +
+  ggtitle("Number of Food Inspection Employees") +
+  expand_limits(y = 0) +
+  theme_bw() +
+  theme(plot.title = element_text(hjust = 0.5),
+        text = element_text(size = 16))
+
+food_safety_employees_plot
+
+ggsave(food_safety_employees_plot,
+       file = "food_safety_employees_plot.pdf", 
+       width = 8, height = 4.5)
+```
+
+```{r}
+IRS_employees_plot <- ggplot(num_employees %>% 
+                               filter(Occupation == "Internal Revenue Service"), 
+                                     aes(Date, Number_Employees)) +
+  geom_line(size = 2) + 
+  xlab("Year") +
+  ylab("Number of Employees (in thousands)") +
+  ggtitle("Number of IRS Employees") +
+  expand_limits(y = 10) +
+  theme_bw() +
+  theme(plot.title = element_text(hjust = 0.5),
+        text = element_text(size = 16))
+
+IRS_employees_plot
+
+ggsave(IRS_employees_plot,
+       file = "IRS_employees_plot.pdf", 
+       width = 8, height = 4.5)
+```
+
+```{r}
+food_safety_total_plot <- ggplot(total_salaries %>% 
+                                   filter(Occupation == "Food Inspection"), 
+                                 aes(Date, Total_Salary)) +
+  geom_line(size = 2) + 
+  xlab("Year") +
+  ylab("Total Salaries (in millions of dollars)") +
+  ggtitle("Total Salaries of Food Inspection Employees") +
+  expand_limits(y = 0) +
+  theme_bw() +
+  theme(plot.title = element_text(hjust = 0.5),
+        text = element_text(size = 16))
+
+food_safety_total_plot
+
+ggsave(food_safety_total_plot,
+       file = "food_safety_total_plot.pdf", 
+       width = 8, height = 4.5)
+```
+
+```{r}
+IRS_total_plot <- ggplot(total_salaries %>% 
+                           filter(Occupation == "Internal Revenue Service"), 
+                         aes(Date, Total_Salary)) +
+  geom_line(size = 2) + 
+  xlab("Year") +
+  ylab("Total Salaries (in millions of dollars)") +
+  ggtitle("Total Salaries of IRS Employees") +
+  expand_limits(y = 1000) +
+  theme_bw() +
+  theme(plot.title = element_text(hjust = 0.5),
+        text = element_text(size = 16))
+
+IRS_total_plot
+
+ggsave(IRS_total_plot,
+       file = "IRS_total_plot.pdf", 
+       width = 8, height = 4.5)
+```
+
+```{r}
+food_safety_average_plot <- ggplot(average_salaries %>% 
+                                     filter(Occupation == "Food Inspection"), 
+                                   aes(Date, Average_Salary)) +
+  geom_line(size = 2) + 
+  xlab("Year") +
+  ylab("Average Salaries (in thousands of dollars)") +
+  ggtitle("Average Salaries of Food Inspection Employees") +
+  expand_limits(y = 0) +
+  theme_bw() +
+  theme(plot.title = element_text(hjust = 0.5),
+        text = element_text(size = 16))
+
+food_safety_average_plot
+
+ggsave(food_safety_average_plot,
+       file = "food_safety_average_plot.pdf", 
+       width = 8, height = 4.5)
+```
+
+
+```{r}
+IRS_average_plot <- ggplot(average_salaries %>% 
+                             filter(Occupation == "Internal Revenue Service"), 
+                           aes(Date, Average_Salary)) +
+  geom_line(size = 2) + 
+  xlab("Year") +
+  ylab("Average Salaries (in thousands of dollars)") +
+  ggtitle("Average Salaries of IRS Employees") +
+  expand_limits(y = 0) +
+  theme_bw() +
+  theme(plot.title = element_text(hjust = 0.5),
+        text = element_text(size = 16))
+
+IRS_average_plot
+
+ggsave(IRS_average_plot,
+       file = "IRS_average_plot.pdf", 
+       width = 8, height = 4.5)
+```
+
+
+```{r}
+outbreak_plot <- ggplot(food_safety_metrics, aes(Year, Outbreaks)) +
+  geom_line(size = 2) + 
+  ylab("Number of Outbreaks Due to Food Illness") +
+  ggtitle("Number of Food Illness-Related Outbreaks") +
+  expand_limits(y = 0) +
+  theme_bw() +
+  theme(plot.title = element_text(hjust = 0.5),
+        text = element_text(size = 16))
+
+outbreak_plot
+
+ggsave(outbreak_plot,
+       file = "outbreak_plot.pdf", 
+       width = 8, height = 4.5)
+```
+
+
+```{r}
+coverage_plot <- ggplot(IRS_metric, aes(Year, Exam_Coverage)) +
+  geom_line(size = 2) + 
+  ylab("Proportion") +
+  ggtitle("Proportion of Tax Returns Examined by IRS") +
+  expand_limits(y = 0) +
+  theme_bw() +
+  theme(plot.title = element_text(hjust = 0.5),
+        text = element_text(size = 16))
+
+coverage_plot
+
+ggsave(coverage_plot,
+       file = "coverage_plot.pdf", 
+       width = 8, height = 4.5)
+```
+
+```{r}
+IRS_metric <- read.csv("IRS_metric_recommended.csv")
+recommended_plot <- ggplot(IRS_metric, 
+                           aes(Year, Recommended_Additional_Tax / 1e6)) +
+  geom_line(size = 2) + 
+  ylab("Billions of Dollars") +
+  ggtitle("IRS Recommended Additional Tax") +
+  expand_limits(y = 0) +
+  theme_bw() +
+  theme(plot.title = element_text(hjust = 0.5),
+        text = element_text(size = 16))
+
+recommended_plot
+
+ggsave(recommended_plot,
+       file = "recommended_plot.pdf", 
+       width = 8, height = 4.5)
+```
+
+```{r}
+government_employees <- read.csv("government_employees.csv") %>%
+  rename(Year = DATE, Number_Employees = CES9091000001) %>%
+  mutate(Year = ymd(Year),
+         Number_Employees = Number_Employees / 1000)
+
+employees_plot <- ggplot(government_employees, aes(Year, Number_Employees)) +
+  geom_line(size = 2) + 
+  xlab("Year") +
+  ylab("Number of Employees, in Millions") +
+  ggtitle("Number of US Government Employees") +
+  expand_limits(y = 1) +
+  theme_bw() +
+  theme(plot.title = element_text(hjust = 0.5),
+        text = element_text(size = 16))
+
+employees_plot
+
+ggsave(employees_plot,
+       file = "employees_plot.pdf", 
+       width = 8, height = 4.5)
+```
+
+```{r}
+all_data_y <- read.csv("all_data_y.csv", stringsAsFactors = FALSE) %>%
+  as_tibble() %>%
+  rename(under_30 = X.30, between_30_49 = X30.49, over_50 = X50., 
+         recommended_additional_tax = Recommended.additional.tax..total.)
+all_data_q <- read.csv("all_data_q.csv") %>%
+  as_tibble() %>%
+  rename(under_30 = X.30, between_30_49 = X30.49, over_50 = X50.,
+         recommended_additional_tax = Recommended.additional.tax..total.)
+
+food_inspector_data <- all_data_q %>%
+  filter(Occupation == "Food Inspection", !is.na(Outbreaks)) %>%
+  select(-c(Occupation, Exam_Coverage, recommended_additional_tax)) %>%
+  mutate(under_30 = under_30 / Number_Employees, 
+         between_30_49 = between_30_49 / Number_Employees, 
+         over_50 = over_50 / Number_Employees,
+         Outbreaks = lead(Outbreaks, 1)) %>%
+  head(-1)
+
+IRS_data <- all_data_y %>%
+  filter(Occupation == "Internal Revenue Service", 
+         !is.na(Individual.returns.examined..total.)) %>%
+  rename(individual_returns_examined = Individual.returns.examined..total.,
+         corporate_returns_examined = Corporate.returns.examined..total., 
+         individual_recommended_tax = recommended_additional_tax,
+         corporate_recommended_tax = Recommended.additional.corporate.tax..total.) %>%
+  select(-c(Occupation, Outbreaks, Illnesses, Hospitalizations)) %>%
+  mutate(under_30 = under_30 / Number_Employees, 
+         between_30_49 = between_30_49 / Number_Employees, 
+         over_50 = over_50 / Number_Employees)
+```
+
+```{r}
+cor(food_inspector_data)
+```
+
+
+```{r}
+outbreaks_model <- lm(Illnesses ~ as.factor(Month) + Average_Salary,
+                      data = food_inspector_data)
+summary(outbreaks_model)
+```
+
+```{r}
+illness_plot <- ggplot(food_inspector_data, 
+                       aes(paste(food_inspector_data$Year, 
+                                 food_inspector_data$Month, 
+                                 "01", sep = "-") %>% ymd(), Illnesses)) +
+  geom_line(size = 2) + 
+  xlab("Year") +
+  ylab("Number of Illnesses") +
+  ggtitle("Quarterly Number of Foodborne Illnesses") +
+  expand_limits(y = 0) +
+  theme_bw() +
+  theme(plot.title = element_text(hjust = 0.5),
+        text = element_text(size = 16))
+
+illness_plot
+
+ggsave(illness_plot,
+       file = "illness_plot.pdf", 
+       width = 8, height = 4.5)
+```
+
+```{r}
+food_safety_employees_plot <- ggplot(food_inspector_data, 
+                                     aes(paste(food_inspector_data$Year,
+                                               food_inspector_data$Month, 
+                                               "01", sep = "-") %>% ymd(), 
+                                         Number_Employees)) +
+  geom_line(size = 2) + 
+  xlab("Year") +
+  ylab("Number of Employees") +
+  ggtitle("Quarterly Number of Food Inspectors") +
+  expand_limits(y = 0) +
+  theme_bw() +
+  theme(plot.title = element_text(hjust = 0.5),
+        text = element_text(size = 16))
+
+food_safety_employees_plot
+
+ggsave(food_safety_employees_plot,
+       file = "food_safety_employees_plot.pdf", 
+       width = 8, height = 4.5)
+```
+
+```{r}
+food_safety_average_plot <- ggplot(food_inspector_data, 
+                                   aes(paste(food_inspector_data$Year,
+                                             food_inspector_data$Month, 
+                                             "01", sep = "-") %>% ymd(), 
+                                       Average_Salary / 1000)) +
+  geom_line(size = 2) + 
+  xlab("Year") +
+  ylab("Average Salaries (in thousands of dollars)") +
+  ggtitle("Quarterly Average Salaries of Food Inspection Employees") +
+  expand_limits(y = 0) +
+  theme_bw() +
+  theme(plot.title = element_text(hjust = 0.5),
+        text = element_text(size = 16))
+
+food_safety_average_plot
+
+ggsave(food_safety_average_plot,
+       file = "food_safety_average_plot.pdf", 
+       width = 8, height = 4.5)
+```
+
+```{r}
+food_safety_total_plot <- ggplot(food_inspector_data, 
+                                 aes(paste(food_inspector_data$Year,
+                                           food_inspector_data$Month, 
+                                           "01", sep = "-") %>% ymd(), 
+                                     Total_Salary / 1e6)) +
+  geom_line(size = 2) + 
+  xlab("Year") +
+  ylab("Total Salaries (in millions of dollars)") +
+  ggtitle("Quarterly Total Salaries of Food Inspection Employees") +
+  expand_limits(y = 0) +
+  theme_bw() +
+  theme(plot.title = element_text(hjust = 0.5),
+        text = element_text(size = 16))
+
+food_safety_total_plot
+
+ggsave(food_safety_total_plot,
+       file = "food_safety_total_plot.pdf", 
+       width = 8, height = 4.5)
+```
+
+```{r}
+IRS_data
+```
+
+
+```{r}
+IRS_exams_plot <- ggplot(IRS_data, aes(ymd(paste0(Year, "-03-01")))) +
+  geom_line(aes(y = individual_returns_examined / Number_Employees, 
+                col = "Individual"), size = 2) +
+  geom_line(aes(y = corporate_returns_examined / Number_Employees,
+                col = "Corporate"), size = 2) +  
+  xlab("Year") +
+  ylab("Number of Exams") +
+  scale_color_discrete("Number of Exams\nPer Employee") + 
+  ggtitle("IRS Number of Exams Per Employee") +
+  expand_limits(y = 0) +
+  theme_bw() +
+  theme(plot.title = element_text(hjust = 0.5),
+        text = element_text(size = 16))
+
+IRS_exams_plot
+
+ggsave(IRS_exams_plot,
+       file = "IRS_exams_plot.pdf", 
+       width = 8, height = 4.5)
+```
+
+```{r}
+IRS_recommended_plot <- ggplot(IRS_data, aes(ymd(paste0(Year, "-03-01")))) +
+  geom_line(aes(y = individual_recommended_tax / (Number_Employees * 1e3), 
+                col = "Individual"), size = 2) +
+  geom_line(aes(y = corporate_recommended_tax / (Number_Employees * 1e3),
+                col = "Corporate"), size = 2) +  
+  geom_line(aes(y = (individual_recommended_tax + corporate_recommended_tax) /
+                  (Number_Employees * 1e3), 
+                col = "Total"), size = 2) +
+  xlab("Year") +
+  ylab("Recommended Tax Dollars (millions)") +
+  scale_color_discrete("Additional Tax\nPer Employee") + 
+  ggtitle("IRS Recommended Tax Dollars Per Employee") +
+  expand_limits(y = 0) +
+  theme_bw() +
+  theme(plot.title = element_text(hjust = 0.5),
+        text = element_text(size = 16))
+
+IRS_recommended_plot
+
+ggsave(IRS_recommended_plot,
+       file = "IRS_recommended_plot.pdf", 
+       width = 8, height = 4.5)
+```
+
+```{r}
+IRS_exams_scatter <- ggplot(tail(IRS_data, 7), 
+                            aes(Number_Employees, 
+                                individual_returns_examined / 1e6)) +
+  geom_point(size = 4) +
+  geom_smooth(size = 2, method = "lm") +
+  xlab("Number of Employees") +
+  ylab("Number of Tax Returns (millions)") +
+  ggtitle("Number of Tax Returns Examined vs. IRS Headcount") +
+  theme_bw() +
+  theme(plot.title = element_text(hjust = 0.5),
+        text = element_text(size = 16))
+
+IRS_exams_scatter
+
+ggsave(IRS_exams_scatter,
+       file = "IRS_exams_scatter.pdf", 
+       width = 8, height = 4.5)
+```
+
+```{r}
+IRS_recommended_scatter <- ggplot(tail(IRS_data, 7), 
+                                  aes(Number_Employees, 
+                                      (individual_recommended_tax + 
+                                         corporate_recommended_tax) / 1e6)) +
+  geom_point(size = 4) +
+  geom_smooth(size = 2, method = "lm") +
+  xlab("Number of Employees") +
+  ylab("Recommended Tax Dollars (billions)") +
+  ggtitle("Recommended Tax Dollars vs. IRS Headcount") +
+  theme_bw() +
+  theme(plot.title = element_text(hjust = 0.5),
+        text = element_text(size = 16))
+
+IRS_recommended_scatter
+
+ggsave(IRS_recommended_scatter,
+       file = "IRS_recommended_scatter.pdf", 
+       width = 8, height = 4.5)
+```
+
+```{r}
+IRS_returns_scatter <- ggplot(tail(IRS_data, 7), 
+                              aes(individual_returns_examined / 1e6, 
+                                  individual_recommended_tax / 1e6)) +
+  geom_point(size = 4) +
+  geom_smooth(size = 2, method = "lm") +
+  xlab("Number of Tax Returns (millions)") +
+  ylab("Recommended Tax Dollars (billions)") +
+  ggtitle("Recommended Tax Dollars vs. 
+Number of Tax Returns Examined") +
+  theme_bw() +
+  theme(plot.title = element_text(hjust = 0.5),
+        text = element_text(size = 16))
+
+IRS_returns_scatter
+
+ggsave(IRS_returns_scatter,
+       file = "IRS_returns_scatter.pdf", 
+       width = 8, height = 4.5)
+```
